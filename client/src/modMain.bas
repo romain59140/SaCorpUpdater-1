@@ -1,28 +1,28 @@
 Attribute VB_Name = "modMain"
 Option Explicit
 
-'|--------------------------------|
-'| Eclipse Origins - Autoupdater  |
-'| Created by: Robin Perris       |
-'| Website: freemmorpgmaker.com   |
-'|--------------------------------|
+'-------------------
+'| SaCorpUpdater   |
+'-------------------
+'| By Herasus      |
+'-------------------
 
-' file host
 Private UpdateURL As String
-
-' stores the variables for the version downloaders
+Dim appname As String
 Private VersionCount As Long
 
 Sub Main()
-    If Not FileExist(App.Path & "\Data Files\updaterInfo.ini") Then DestroyUpdater
-    UpdateURL = GetVar(App.Path & "\Data Files\updaterInfo.ini", "UPDATER", "updateURL")
+    If Not FileExist(App.Path & "\Config\Launcher.ini") Then DestroyUpdater
+    UpdateURL = GetVar(App.Path & "\Config\Launcher.ini", "SERVER", "updateurl")
+    appname = GetVar(App.Path & "\Config\Launcher.ini", "GENERAL", "gamename")
+    frmMain.lblTitle.Caption = appname
     Load frmMain
 End Sub
 
 Public Sub DestroyUpdater()
-    ' kill temp files
+    'Supprimer fichier temp
     If FileExist(App.Path & "\tmpUpdate.ini") Then Kill App.Path & "\tmpUpdate.ini"
-    ' end updater
+    'Quitter
     Unload frmMain
     End
 End Sub
@@ -30,81 +30,85 @@ End Sub
 Public Sub Update()
 Dim CurVersion As Long
 Dim Filename As String
-Dim i As Long
+Dim I As Long
 
-    AddProgress "Connecting to server..."
+    AddProgress "Connexion au serveur de " & appname & " en cours..."
 
-    ' get the file which contains the info of updated files
+    'Télécharge le fichier de mise à jour
     DownloadFile UpdateURL & "/update.ini", App.Path & "\tmpUpdate.ini"
     
-    AddProgress "Connected to server!"
-    AddProgress "Retrieving version information."
+    AddProgress "Connexion au serveur réussie, en attente d'informations..."
     
-    ' read the version count
-    VersionCount = GetVar(App.Path & "\tmpUpdate.ini", "FILES", "Versions")
+    'quelle version le client a ?
+    VersionCount = GetVar(App.Path & "\tmpUpdate.ini", "FILES", "versions")
     
-    ' check if we've got a current client version saved
-    If FileExist(App.Path & "\Data Files\version.ini") Then
-        CurVersion = GetVar(App.Path & "\Data Files\version.ini", "UPDATER", "CurVersion")
+    'voir si une version du client existe
+    If FileExist(App.Path & "\Config\version.ini") Then
+        CurVersion = GetVar(App.Path & "\Config\version.ini", "UPDATER", "CurVersion")
     Else
-        CurVersion = 0
+        CurVersion = 1
     End If
     
-    ' are we up to date?
+    'Sommes-nous à jour ?
     If CurVersion < VersionCount Then
-        ' make sure it's not 0!
         If CurVersion = 0 Then CurVersion = 1
-        ' loop around, download and unrar each update
-        For i = CurVersion To VersionCount
-            ' let them know!
-            AddProgress "Downloading version " & i & "."
-            Filename = "version" & i & ".rar"
-            ' set the download going through inet
+        For I = CurVersion To VersionCount
+            AddProgress "Téléchargement de la version " & I & "."
+            Filename = "version" & I & ".rar"
             DownloadFile UpdateURL & "/" & Filename, App.Path & "\" & Filename
-            ' us the unrar.dll to extract data
             RARExecute OP_EXTRACT, Filename
-            ' kill the temp update file
             Kill App.Path & "\" & Filename
-            ' update the current version
-            PutVar App.Path & "\Data Files\version.ini", "UPDATER", "CurVersion", Str(i)
-            ' let them know!
-            AddProgress "Version " & i & " installed."
+            PutVar App.Path & "\Config\version.ini", "UPDATER", "CurVersion", Str(I)
+            AddProgress "Version " & I & " installé."
         Next
-        ' let them know the update has finished
-        AddProgress ""
-        AddProgress "Update Complete!"
-        AddProgress "You can now exit the updater.", False
+        'Fin de la mise à jour
+        AddProgress "Les mises à jour sont terminés, vous pouvez dorénavant lancer " & appname & "."
     Else
-        ' they're at the correct version, or perhaps higher!
-        AddProgress ""
-        AddProgress "You are completely up to date!"
-        AddProgress "You can now exit the updater.", False
+        'Déjà à jour
+        AddProgress "Vous êtes à jour, vous pouvez dorénavant lancer " & appname & "."
     End If
 End Sub
+
 
 Public Sub AddProgress(ByVal sProgress As String, Optional ByVal newline As Boolean = True)
-    ' add a string to the textbox on the form
-    frmMain.txtProgress.Text = frmMain.txtProgress.Text & sProgress
-    If newline = True Then frmMain.txtProgress.Text = frmMain.txtProgress.Text & vbNewLine
+    frmMain.lblprogress.Caption = sProgress
 End Sub
 
-Private Sub DownloadFile(ByVal URL As String, ByVal Filename As String)
-    Dim fileBytes() As Byte
-    Dim fileNum As Integer
-    
-    On Error GoTo DownloadError
-    
-    ' download data to byte array
-    fileBytes() = frmMain.inetDownload.OpenURL(URL, icByteArray)
-    
-    fileNum = FreeFile
-    Open Filename For Binary Access Write As #fileNum
-        ' dump the byte array as binary
-        Put #fileNum, , fileBytes()
-    Close #fileNum
-    
-    Exit Sub
-    
-DownloadError:
-    MsgBox Err.Description
+Sub DownloadProgress(intPercent As String)
+    frmMain.ctlProgressBar1.value = intPercent
+End Sub
+
+
+Public Sub DownloadFile(strURL As String, strDestination As String)
+'Code inspiré de http://www.codeitbetter.com/download-file-inet-control-progress/
+    Const CHUNK_SIZE As Long = 1024
+    Dim iFile As Integer
+    Dim lBytesReceived As Long
+    Dim lFileLength As Long
+    Dim strHeader As String
+    Dim b() As Byte
+    Dim I As Integer
+    DoEvents
+    With frmMain.inetDownload
+        .URL = strURL
+        .Execute , "GET", , "Range: bytes=" & CStr(lBytesReceived) & "-" & vbCrLf
+        While .StillExecuting
+            DoEvents
+        Wend
+        strHeader = .GetHeader
+    End With
+    strHeader = frmMain.inetDownload.GetHeader("Content-Length")
+    lFileLength = Val(strHeader)
+    DoEvents
+    lBytesReceived = 0
+    iFile = FreeFile()
+    Open strDestination For Binary Access Write As #iFile
+    Do
+        b = frmMain.inetDownload.GetChunk(CHUNK_SIZE, icByteArray)
+        Put #iFile, , b
+        lBytesReceived = lBytesReceived + UBound(b, 1) + 1
+        DownloadProgress (Round((lBytesReceived / lFileLength) * 100))
+        DoEvents
+    Loop While UBound(b, 1) > 0
+    Close #iFile
 End Sub
