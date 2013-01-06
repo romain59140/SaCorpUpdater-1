@@ -1,0 +1,28 @@
+Comment utiliser SaCorpUpdater :
+- Uploader le dossier serveur sur votre FTP
+- Placer les fichiers SaCorpUpdater.exe, SaCorpUpdater.exe.manifest, unrar.dll et Config\Launcher.ini à la racine de votre programme
+- Configuration du Launcher.ini :
+[GENERAL]
+exename=Fichier exe, ... de votre programme
+gamename=Nom du programme
+version=Version du programme (n'influance pas l'updater)
+nameversion=Facultatif
+newsurl=http://url_de_la_webbrowser.fr/
+[TEXT]
+launch=Démarrer
+quit=Quitter
+[SERVER]
+updateurl=http://emplacement_de_votre_dossier_serveur.fr/server (pas de / terminal !)
+
+-------------
+
+Comment ajouter une version :
+Allez dans le dossier Serveur de votre FTP.
+Ouvrez le fichier update.ini :
+[FILES]
+versions=Le nombre de versions de votre programme
+version1=version1.rar
+version2=version2.rar
+etc... en fonction du nbre de versions
+
+et dans le même dossier, créer une archive .rar avec les fichiers MAJ dedans.
