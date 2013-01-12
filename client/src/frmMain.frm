@@ -71,7 +71,7 @@ Begin VB.Form frmMain
       NoFolders       =   0   'False
       Transparent     =   0   'False
       ViewID          =   "{0057D0E0-3573-11CF-AE69-08002B2E1262}"
-      Location        =   ""
+      Location        =   "http:///"
    End
    Begin InetCtlsObjects.Inet inetDownload 
       Left            =   0
@@ -81,6 +81,7 @@ Begin VB.Form frmMain
       _Version        =   393216
    End
    Begin VB.Label lblprogress 
+      BackStyle       =   0  'Transparent
       Caption         =   "Initialisation... Merci de patienter."
       Height          =   255
       Left            =   120
@@ -129,9 +130,9 @@ End Sub
 Private Sub Form_Load()
 Dim Filename As String
 Dim appname As String
-
-    ' if a GUI image exists, then load it onto the form
-    ' and make the labels invisible.
+    WebBrowser1.Navigate GetVar(App.Path & "\Config\Launcher.ini", "GENERAL", "newsurl")
+    
+    'fond de l'updater
     Filename = App.Path & "\Config\sacorpupdater.jpg"
     
     If FileExist(Filename) Then
@@ -141,6 +142,10 @@ Dim appname As String
     Me.Caption = appname
     cmdLaunch.Caption = GetVar(App.Path & "\Config\Launcher.ini", "TEXT", "launch")
     cmdExit.Caption = GetVar(App.Path & "\Config\Launcher.ini", "TEXT", "quit")
+    
+    'on désactive le bouton lancer, pour le réactiver après la mise à jour
+    cmdLaunch.Enabled = False
+    
     Me.Show
     
     Update
