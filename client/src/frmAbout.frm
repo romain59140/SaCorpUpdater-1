@@ -13,8 +13,9 @@ Begin VB.Form frmAbout
    ScaleHeight     =   4095
    ScaleWidth      =   4515
    ShowInTaskbar   =   0   'False
-   StartUpPosition =   3  'Windows Default
+   StartUpPosition =   2  'CenterScreen
    Begin VB.TextBox Text1 
+      BackColor       =   &H00E0E0E0&
       Height          =   3135
       Left            =   120
       Locked          =   -1  'True
