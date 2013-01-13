@@ -1,0 +1,5 @@
+frmMain = 0, 0, 0, 0, C, 25, 25, 1267, 680, C
+modUnrar = 0, 0, 0, 0, C
+modMain = 0, 0, 0, 0, C
+modDatabase = 0, 0, 0, 0, C
+ctlProgressBar = 0, 0, 0, 0, C, 0, 0, 0, 0, C

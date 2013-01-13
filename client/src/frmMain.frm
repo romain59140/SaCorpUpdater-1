@@ -1,9 +1,9 @@
 VERSION 5.00
-Object = "{48E59290-9880-11CF-9754-00AA00C00908}#1.0#0"; "MSINET.OCX"
+Object = "{48E59290-9880-11CF-9754-00AA00C00908}#1.0#0"; "msinet.ocx"
 Object = "{EAB22AC0-30C1-11CF-A7EB-0000C05BAE0B}#1.1#0"; "ieframe.dll"
 Begin VB.Form frmMain 
    BorderStyle     =   1  'Fixed Single
-   Caption         =   "Autoupdater"
+   Caption         =   "SaCorp Updater"
    ClientHeight    =   5640
    ClientLeft      =   45
    ClientTop       =   375
@@ -80,13 +80,23 @@ Begin VB.Form frmMain
       _ExtentY        =   1005
       _Version        =   393216
    End
+   Begin VB.Label apropos 
+      BackColor       =   &H00FFFFFF&
+      BackStyle       =   0  'Transparent
+      Caption         =   "A propos"
+      Height          =   255
+      Left            =   7920
+      TabIndex        =   5
+      Top             =   5400
+      Width           =   855
+   End
    Begin VB.Label lblprogress 
       BackStyle       =   0  'Transparent
       Caption         =   "Initialisation... Merci de patienter."
       Height          =   255
       Left            =   120
       TabIndex        =   1
-      Top             =   4680
+      Top             =   4560
       Width           =   8535
    End
    Begin VB.Label lblTitle 
@@ -116,6 +126,10 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
+
+Private Sub apropos_Click()
+    frmAbout.Show
+End Sub
 
 Private Sub cmdLaunch_Click()
 Dim appfile As String

@@ -36,16 +36,10 @@ Dim I As Long
 
     'Télécharge le fichier de mise à jour
     DownloadFile UpdateURL & "/update.ini", App.Path & "\tmpUpdate.ini"
-    
-    'A t-on téléchargé le fichier ?
-    
-    If Not FileExist(App.Path & "\tmpUpdate.ini") Then
-    GoTo downfail
-    End If
-    
+
     AddProgress "Connexion au serveur réussie, en attente d'informations..."
     
-    'quelle version le client a ?
+    'Dernière version du serveur
     VersionCount = GetVar(App.Path & "\tmpUpdate.ini", "FILES", "versions")
     
     'voir si une version du client existe
@@ -74,15 +68,10 @@ Dim I As Long
         AddProgress "Vous êtes à jour, vous pouvez dorénavant lancer " & appname & "."
     End If
     frmMain.cmdLaunch.Enabled = True
-    
-=downfail
-    
-    AddProgress "Connexion au serveur de mise à jour impossible."
-    frmMain.cmdLaunch.Enabled = True
 End Sub
 
 
-Public Sub AddProgress(ByVal sProgress As String, Optional ByVal newline As Boolean = True)
+Public Sub AddProgress(ByVal sProgress As String)
     frmMain.lblprogress.Caption = sProgress
 End Sub
 
